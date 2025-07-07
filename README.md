@@ -3,7 +3,7 @@
 
 ## Getting Started
 
-i created this app for us , us christians well designed entertainment and praising the lord uses
+i created this app for us , us christians. Well designed for entertainment and praising the lord uses
 
 A few resources to get you started if this is your first Flutter project:
 
