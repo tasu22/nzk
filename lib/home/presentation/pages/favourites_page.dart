@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle, HapticFeedback;
 import 'song_detail_page.dart';
@@ -14,99 +15,198 @@ class FavouritesPage extends StatefulWidget {
 class FavouritesPageState extends State<FavouritesPage> {
   List<dynamic> allSongs = [];
   bool isLoading = true;
+  List<String> favourites = [];
 
   @override
   void initState() {
     super.initState();
-    loadAll();
+    _loadData();
   }
 
-  Future<void> loadAll() async {
+  Future<void> _loadData() async {
     await FavouritesStore.init();
+    final favs = await FavouritesStore.getFavourites();
+
     final String jsonString = await rootBundle.loadString(
       'assets/json/swahili.json',
     );
-    setState(() {
-      allSongs = json.decode(jsonString);
-      isLoading = false;
-    });
+    final songs = json.decode(jsonString) as List<dynamic>;
+
+    if (mounted) {
+      setState(() {
+        allSongs = songs;
+        favourites = favs;
+        isLoading = false;
+      });
+    }
   }
 
-  List<String> favourites = [];
-
+  @override
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    return FutureBuilder<List<String>>(
-      future: FavouritesStore.getFavourites(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-        favourites = snapshot.data!;
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Favourites', style: TextStyle(fontSize: 30)),
-            centerTitle: false,
-          ),
-          body: favourites.isEmpty
-              ? const Center(
-                  child: Text(
-                    'H U J A W E K A  C H O C H O T E',
-                    style: TextStyle(fontSize: 20, color: Colors.grey),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: isLoading
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+          : CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  floating: true,
+                  pinned: true,
+                  backgroundColor: theme.scaffoldBackgroundColor,
+                  elevation: 0,
+                  leading: IconButton(
+                    icon: Icon(Icons.arrow_back, color: colorScheme.primary),
+                    onPressed: () => Navigator.pop(context),
                   ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: favourites.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final title = favourites[index];
-                    // Find the song object by title (ignoring number prefix)
-                    final song = allSongs.firstWhere((s) {
-                      final rawTitle = (s['title'] ?? '').toString();
-                      final displayTitle = rawTitle.replaceFirst(
-                        RegExp(r'^\d{1,4}\s*-\s*'),
-                        '',
-                      );
-                      return displayTitle.trim() == title.trim();
-                    }, orElse: () => null);
-                    if (song == null) {
-                      return SongCard(
-                        number: index + 1,
-                        title: title,
-                        onTap: null,
-                      );
-                    }
-                    final rawTitle = (song['title'] ?? '').toString();
-                    final displayTitle = rawTitle.replaceFirst(
-                      RegExp(r'^\d{1,4}\s*-\s*'),
-                      '',
-                    );
-                    return SongCard(
-                      number: song['number'] ?? (index + 1),
-                      title: displayTitle,
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SongDetailPage(
-                              title: displayTitle,
-                              content: song['content'],
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Nyimbo',
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      Text(
+                        'Pendwa',
+                        style: textTheme.headlineMedium?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          height: 1.1,
+                        ),
+                      ),
+                    ],
+                  ),
+                  centerTitle: false,
+                ),
+                if (favourites.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(32),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary.withValues(
+                                alpha: 0.05,
+                              ),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.1,
+                                ),
+                                width: 1,
+                              ),
+                            ),
+                            child: Icon(
+                              CupertinoIcons.heart,
+                              size: 64,
+                              color: colorScheme.primary.withValues(alpha: 0.8),
                             ),
                           ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Hakuna Vipendwa',
+                            style: textTheme.headlineSmall?.copyWith(
+                              color: colorScheme.onSurface,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Nyimbo unazozipenda zitaonekana hapa',
+                            textAlign: TextAlign.center,
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          OutlinedButton.icon(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(CupertinoIcons.search, size: 18),
+                            label: const Text('Tafuta Nyimbo'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: colorScheme.primary,
+                              side: BorderSide(
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 64),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final title = favourites[index];
+                        // Find the song object by title
+                        final song = allSongs.firstWhere((s) {
+                          final rawTitle = (s['title'] ?? '').toString();
+                          final displayTitle = rawTitle.replaceFirst(
+                            RegExp(r'^\d{1,4}\s*-\s*'),
+                            '',
+                          );
+                          return displayTitle.trim() == title.trim();
+                        }, orElse: () => null);
+
+                        if (song == null) return const SizedBox.shrink();
+
+                        final rawTitle = (song['title'] ?? '').toString();
+                        final displayTitle = rawTitle.replaceFirst(
+                          RegExp(r'^\d{1,4}\s*-\s*'),
+                          '',
                         );
-                      },
-                    );
-                  },
-                ),
-        );
-      },
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: SongCard(
+                            number: song['number'] ?? 0,
+                            title: displayTitle,
+                            onTap: () async {
+                              HapticFeedback.mediumImpact();
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SongDetailPage(
+                                    title: displayTitle,
+                                    content: song['content'],
+                                  ),
+                                ),
+                              );
+                              // Refresh favourites when returning
+                              _loadData();
+                            },
+                          ),
+                        );
+                      }, childCount: favourites.length),
+                    ),
+                  ),
+              ],
+            ),
     );
   }
 }

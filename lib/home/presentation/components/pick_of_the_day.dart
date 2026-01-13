@@ -29,27 +29,51 @@ class PickOfTheDay extends StatelessWidget {
       RegExp(r'^\d+\s*-\s*'),
       '',
     );
+
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFC19976), width: 2),
+        gradient: LinearGradient(
+          colors: [
+            Colors.white.withValues(alpha: 0.08),
+            Colors.white.withValues(alpha: 0.02),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Wimbo wa Siku',
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFFC19976),
-              letterSpacing: 1.2,
-            ),
+          Row(
+            children: [
+              Icon(Icons.auto_awesome, color: colorScheme.primary, size: 16),
+              const SizedBox(width: 8),
+              Text(
+                'WIMBO WA SIKU',
+                style: textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                  letterSpacing: 2.0,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           GestureDetector(
             onTap: onTap != null
                 ? () {
@@ -58,33 +82,49 @@ class PickOfTheDay extends StatelessWidget {
                   }
                 : null,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 26,
-                  child: Text(
-                    song['number'].toString(),
-                    style: const TextStyle(
-                      color: Color(0xFFC19976),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
+                Text(
+                  song['number'].toString(),
+                  style: textTheme.displaySmall?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 32,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
-                  child: Text(
-                    displayTitle,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFFC19976),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayTitle,
+                        style: textTheme.bodyLarge?.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: Color(0xFFC19976)),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                    border: Border.all(
+                      color: colorScheme.primary.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.play_arrow_rounded,
+                    color: colorScheme.primary,
+                    size: 24,
+                  ),
+                ),
               ],
             ),
           ),

@@ -16,17 +16,24 @@ class AppTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: backgroundColor,
       primaryColor: backgroundColor,
+      colorScheme: const ColorScheme.dark(
+        primary: headerColor,
+        secondary: headerColor,
+        surface: backgroundColor,
+        onPrimary: backgroundColor,
+        onSurface: textColor,
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: backgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: accentColor),
+        iconTheme: const IconThemeData(color: headerColor),
         titleTextStyle: GoogleFonts.montserrat(
           color: headerColor,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
       ),
-      iconTheme: const IconThemeData(color: accentColor),
+      iconTheme: const IconThemeData(color: headerColor),
       // Consistent Premium Typography
       textTheme: TextTheme(
         displayLarge: GoogleFonts.montserrat(color: headerColor),
