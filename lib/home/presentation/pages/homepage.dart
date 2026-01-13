@@ -360,4 +360,187 @@ class _HomePageState extends State<HomePage>
       ),
     );
   }
+
+  Widget _buildSkeletonLoader(ThemeData theme, ColorScheme colorScheme) {
+    return CustomScrollView(
+      slivers: [
+        // Skeleton AppBar
+        SliverAppBar(
+          floating: true,
+          snap: true,
+          backgroundColor: theme.scaffoldBackgroundColor.withValues(alpha: 0.9),
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                width: 120,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Container(
+              width: 40,
+              height: 40,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+            ),
+            Container(
+              width: 40,
+              height: 40,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
+        ),
+        // Skeleton Pick of the Day
+        SliverToBoxAdapter(
+          child: Container(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: colorScheme.onSurface.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 140,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurface.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: colorScheme.onSurface.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.15,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            width: 150,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.1,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Skeleton Song Cards
+        SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorScheme.onSurface.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: colorScheme.onSurface.withValues(alpha: 0.05),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: colorScheme.onSurface.withValues(
+                              alpha: 0.15,
+                            ),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: 120,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: colorScheme.onSurface.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }, childCount: 8),
+        ),
+      ],
+    );
+  }
 }
