@@ -93,39 +93,6 @@ flutter:
        
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
-icons_launcher:
-  image_path: "assets/images/nzk.png"
-  platforms:
-    android:
-      enable: true
-      image_path: "assets/images/nzk.png"
-      notification_image: "assets/images/nzk.png"
-      # adaptive_background_color: '#ffffff'
-      adaptive_background_image: "assets/images/nzk.png"
-      adaptive_foreground_image: "assets/images/nzk.png"
-      adaptive_round_image: "assets/images/nzk.png"
-      adaptive_monochrome_image: "assets/images/nzk.png"
-    ios:
-      enable: true
-      alpha: false
-      image_path: "assets/images/nzk.png"
-      # For iOS 18+ (support dark and tinted)
-      dark_path: "assets/images/nzk.png"
-      tinted_path: "assets/images/nzk.png"
 
-
-
-flutter_native_splash:
-  color: "#082C38"
-  image: assets/images/nzk.png
-  
-  color_dark: "#082C38"
-  image_dark: assets/images/nzk.png
-  
-
-  android_12:
-    image: assets/images/nzk.png
-    image_dark: assets/images/nzk.png
-    
 
   
