@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static const Color backgroundColor = Color(0xFF082C38);
-  static const Color textColor = Color(0xFFC19976);
-  static const Color accentColor = Colors.white;
+  // Premium Dark Palette
+  static const Color backgroundColor = Color(0xFF121212); // Deep Charcoal/Black
+  static const Color textColor = Color(
+    0xFFE0E0E0,
+  ); // Soft White for readability
+  static const Color headerColor = Color(0xFFD4AF37); // Muted Gold for headers
+  static const Color accentColor = Color(0xFFD4AF37); // Gold accent
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -11,44 +16,46 @@ class AppTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: backgroundColor,
       primaryColor: backgroundColor,
-      fontFamily: 'Playfair',
       appBarTheme: AppBarTheme(
         backgroundColor: backgroundColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: accentColor),
-        titleTextStyle: const TextStyle(
-          color: textColor,
+        titleTextStyle: GoogleFonts.montserrat(
+          color: headerColor,
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          fontFamily: 'Playfair',
         ),
       ),
       iconTheme: const IconThemeData(color: accentColor),
-      textTheme: const TextTheme(
-        displayLarge: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        displayMedium: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        displaySmall: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        headlineMedium: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        headlineSmall: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        titleLarge: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        bodyLarge: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        bodyMedium: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        bodySmall: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        labelLarge: TextStyle(color: textColor, fontFamily: 'Playfair'),
+      // Consistent Premium Typography
+      textTheme: TextTheme(
+        displayLarge: GoogleFonts.montserrat(color: headerColor),
+        displayMedium: GoogleFonts.montserrat(color: headerColor),
+        displaySmall: GoogleFonts.montserrat(color: headerColor),
+        headlineMedium: GoogleFonts.montserrat(color: headerColor),
+        headlineSmall: GoogleFonts.montserrat(color: headerColor),
+        titleLarge: GoogleFonts.montserrat(
+          color: headerColor,
+          fontWeight: FontWeight.w600,
+        ),
+        bodyLarge: GoogleFonts.lexend(color: textColor),
+        bodyMedium: GoogleFonts.lexend(color: textColor),
+        bodySmall: GoogleFonts.lexend(color: textColor.withValues(alpha: 0.7)),
+        labelLarge: GoogleFonts.lexend(color: textColor),
       ),
-      inputDecorationTheme: const InputDecorationTheme(
-        enabledBorder: UnderlineInputBorder(
+      inputDecorationTheme: InputDecorationTheme(
+        enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: accentColor),
         ),
-        focusedBorder: UnderlineInputBorder(
+        focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: accentColor),
         ),
-        labelStyle: TextStyle(color: textColor, fontFamily: 'Playfair'),
-        hintStyle: TextStyle(color: Colors.white60, fontFamily: 'Playfair'),
+        labelStyle: GoogleFonts.lexend(color: textColor),
+        hintStyle: GoogleFonts.lexend(color: textColor.withValues(alpha: 0.5)),
       ),
       textSelectionTheme: const TextSelectionThemeData(
         cursorColor: accentColor,
-        selectionColor: Colors.white24,
+        selectionColor: Color(0x33D4AF37), // Gold with low opacity
         selectionHandleColor: accentColor,
       ),
     );
