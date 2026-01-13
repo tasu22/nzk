@@ -13,7 +13,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Nyimbo za Kristo',
       theme: AppTheme.lightTheme,
       home: HomePage(),
     );
