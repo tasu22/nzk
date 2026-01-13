@@ -60,14 +60,19 @@ class _SongDetailPageState extends State<SongDetailPage> {
 
   Future<void> _loadFavourite() async {
     final fav = await FavouritesStore.isFavourite(widget.title);
-    setState(() {
-      isFavourite = fav;
-      loadingFav = false;
-    });
+    if (mounted) {
+      setState(() {
+        isFavourite = fav;
+        loadingFav = false;
+      });
+    }
   }
 
-  List<Widget> _parseContent(String content) {
-    // ...existing code...
+  List<Widget> _parseContent(String content, BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     String text = content.replaceAll('<br/>', '\n');
     text = text.replaceFirst(RegExp(r'<h1><b>.*?</b></h1>\n?'), '');
     final blocks = <Map<String, String>>[];
@@ -105,46 +110,64 @@ class _SongDetailPageState extends State<SongDetailPage> {
           );
           widgets.add(
             Container(
-              margin: const EdgeInsets.only(bottom: 12, left: 20),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              margin: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: const Color(0xFFC19976), width: 1),
-              ),
-              child: Text(
-                trimmed,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontStyle: FontStyle.italic,
-                  color: Color(0xFFC19976),
-                  fontWeight: FontWeight.w600,
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.2),
                 ),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'KIITIKIO',
+                    style: textTheme.labelSmall?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    trimmed,
+                    textAlign: TextAlign.center,
+                    style: textTheme.bodyLarge?.copyWith(
+                      fontSize: 18,
+                      fontStyle: FontStyle.italic,
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                      height: 1.6,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
         } else {
           widgets.add(
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 24),
               child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Container(
                       width: 4,
-                      margin: const EdgeInsets.only(right: 12),
+                      margin: const EdgeInsets.only(right: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFC19976),
+                        color: colorScheme.onSurface.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
                     Expanded(
                       child: Text(
                         trimmed,
-                        style: const TextStyle(
+                        style: textTheme.bodyLarge?.copyWith(
                           fontSize: 18,
-                          color: Colors.white,
+                          height: 1.8,
+                          color: colorScheme.onSurface.withValues(alpha: 0.9),
                         ),
                       ),
                     ),
@@ -161,44 +184,93 @@ class _SongDetailPageState extends State<SongDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        centerTitle: false,
-        actions: [
-          loadingFav
-              ? const SizedBox.shrink()
-              : IconButton(
-                  icon: Icon(
-                    isFavourite
-                        ? CupertinoIcons.heart_fill
-                        : CupertinoIcons.heart,
-                    color: isFavourite ? Colors.red : const Color(0xFFC19976),
-                  ),
-                  tooltip: isFavourite
-                      ? 'Remove from favourites'
-                      : 'Add to favourites',
-                  onPressed: () async {
-                    HapticFeedback.heavyImpact();
-                    setState(() {
-                      loadingFav = true;
-                    });
-                    await FavouritesStore.toggle(widget.title);
-                    final fav = await FavouritesStore.isFavourite(widget.title);
-                    setState(() {
-                      isFavourite = fav;
-                      loadingFav = false;
-                    });
-                  },
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            floating: true,
+            expandedHeight: 120.0,
+            backgroundColor: theme.scaffoldBackgroundColor,
+            surfaceTintColor: Colors.transparent,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            actions: [
+              loadingFav
+                  ? const SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: Padding(
+                        padding: EdgeInsets.all(12),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    )
+                  : IconButton(
+                      icon: Icon(
+                        isFavourite
+                            ? CupertinoIcons.heart_fill
+                            : CupertinoIcons.heart,
+                        color: isFavourite ? Colors.red : colorScheme.primary,
+                      ),
+                      tooltip: isFavourite
+                          ? 'Ondoa kwenye vipendwa'
+                          : 'Weka kwenye vipendwa',
+                      onPressed: () async {
+                        HapticFeedback.mediumImpact();
+                        setState(() {
+                          loadingFav = true;
+                        });
+                        await FavouritesStore.toggle(widget.title);
+                        final fav = await FavouritesStore.isFavourite(
+                          widget.title,
+                        );
+                        if (mounted) {
+                          setState(() {
+                            isFavourite = fav;
+                            loadingFav = false;
+                          });
+                        }
+                      },
+                    ),
+              const SizedBox(width: 8),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(
+                left: 60, // Increased to avoid back button overlap
+                bottom: 16,
+                right: 16,
+              ),
+              title: Text(
+                widget.title.toUpperCase(),
+                style: textTheme.titleMedium?.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                  letterSpacing: -0.5,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              centerTitle: false,
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 48),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _parseContent(widget.content, context),
+              ),
+            ),
+          ),
         ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: _parseContent(widget.content),
-        ),
       ),
     );
   }

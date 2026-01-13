@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 class PickOfTheDay extends StatelessWidget {
@@ -61,7 +62,11 @@ class PickOfTheDay extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome, color: colorScheme.primary, size: 16),
+              Icon(
+                CupertinoIcons.music_note_2,
+                color: colorScheme.primary,
+                size: 16,
+              ),
               const SizedBox(width: 8),
               Text(
                 'WIMBO WA SIKU',
@@ -108,21 +113,6 @@ class PickOfTheDay extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: colorScheme.primary.withValues(alpha: 0.1),
-                    border: Border.all(
-                      color: colorScheme.primary.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.play_arrow_rounded,
-                    color: colorScheme.primary,
-                    size: 24,
                   ),
                 ),
               ],
