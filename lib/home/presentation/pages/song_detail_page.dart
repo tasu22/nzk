@@ -1,43 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-// Simple in-memory favourites store (for demo; replace with persistent storage for real app)
-class FavouritesStore {
-  static final Set<String> _favourites = {};
-  static bool _initialized = false;
-
-  static Future<void> init() async {
-    if (_initialized) return;
-    final prefs = await SharedPreferences.getInstance();
-    final favList = prefs.getStringList('favourites') ?? [];
-    _favourites.clear();
-    _favourites.addAll(favList);
-    _initialized = true;
-  }
-
-  static Future<void> toggle(String title) async {
-    await init();
-    if (_favourites.contains(title)) {
-      _favourites.remove(title);
-    } else {
-      _favourites.add(title);
-    }
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('favourites', _favourites.toList());
-  }
-
-  static Future<bool> isFavourite(String title) async {
-    await init();
-    return _favourites.contains(title);
-  }
-
-  static Future<List<String>> getFavourites() async {
-    await init();
-    return _favourites.toList();
-  }
-}
+import 'package:provider/provider.dart';
+import '../../../state/app_state.dart';
 
 class SongDetailPage extends StatefulWidget {
   final String title;
@@ -49,23 +14,9 @@ class SongDetailPage extends StatefulWidget {
 }
 
 class _SongDetailPageState extends State<SongDetailPage> {
-  bool isFavourite = false;
-  bool loadingFav = true;
-
   @override
   void initState() {
     super.initState();
-    _loadFavourite();
-  }
-
-  Future<void> _loadFavourite() async {
-    final fav = await FavouritesStore.isFavourite(widget.title);
-    if (mounted) {
-      setState(() {
-        isFavourite = fav;
-        loadingFav = false;
-      });
-    }
   }
 
   List<Widget> _parseContent(String content, BuildContext context) {
@@ -203,42 +154,28 @@ class _SongDetailPageState extends State<SongDetailPage> {
               onPressed: () => Navigator.of(context).pop(),
             ),
             actions: [
-              loadingFav
-                  ? const SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: Padding(
-                        padding: EdgeInsets.all(12),
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    )
-                  : IconButton(
-                      icon: Icon(
-                        isFavourite
-                            ? CupertinoIcons.heart_fill
-                            : CupertinoIcons.heart,
-                        color: isFavourite ? Colors.red : colorScheme.primary,
-                      ),
-                      tooltip: isFavourite
-                          ? 'Ondoa kwenye vipendwa'
-                          : 'Weka kwenye vipendwa',
-                      onPressed: () async {
-                        HapticFeedback.mediumImpact();
-                        setState(() {
-                          loadingFav = true;
-                        });
-                        await FavouritesStore.toggle(widget.title);
-                        final fav = await FavouritesStore.isFavourite(
-                          widget.title,
-                        );
-                        if (mounted) {
-                          setState(() {
-                            isFavourite = fav;
-                            loadingFav = false;
-                          });
-                        }
-                      },
+              Consumer<AppState>(
+                builder: (context, appState, child) {
+                  final isFavourite = appState.favourites.contains(
+                    widget.title,
+                  );
+                  return IconButton(
+                    icon: Icon(
+                      isFavourite
+                          ? CupertinoIcons.heart_fill
+                          : CupertinoIcons.heart,
+                      color: isFavourite ? Colors.red : colorScheme.primary,
                     ),
+                    tooltip: isFavourite
+                        ? 'Ondoa kwenye vipendwa'
+                        : 'Weka kwenye vipendwa',
+                    onPressed: () async {
+                      HapticFeedback.mediumImpact();
+                      await appState.toggleFavourite(widget.title);
+                    },
+                  );
+                },
+              ),
               const SizedBox(width: 8),
             ],
             flexibleSpace: FlexibleSpaceBar(

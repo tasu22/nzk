@@ -1,9 +1,10 @@
-import 'dart:convert';
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart' show HapticFeedback, rootBundle;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:provider/provider.dart';
+import '../../../state/app_state.dart';
 import 'favourites_page.dart';
 import 'song_detail_page.dart';
 import '../components/song_card.dart';
@@ -19,75 +20,63 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  List<dynamic> songs = [];
   List<dynamic> filteredSongs = [];
   bool isLoading = true;
   bool isSearching = false;
-  bool showPickOfTheDay = true;
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
-    loadSongs();
+    _loadData();
+    _searchController.addListener(_onSearchChanged);
   }
 
-  Future<void> loadSongs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bool showWimbo = prefs.getBool('show_wimbo_wa_siku') ?? true;
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
 
-    String? cachedJson = prefs.getString('songs_cache');
-    if (cachedJson != null) {
-      if (mounted) {
-        setState(() {
-          songs = json.decode(cachedJson);
-          filteredSongs = songs;
-          showPickOfTheDay = showWimbo;
-          isLoading = false;
-        });
-      }
-      _updateSongsCache(prefs);
-    } else {
-      final String jsonString = await rootBundle.loadString(
-        'assets/json/swahili.json',
-      );
-      if (mounted) {
-        setState(() {
-          songs = json.decode(jsonString);
-          filteredSongs = songs;
-          showPickOfTheDay = showWimbo;
-          isLoading = false;
-        });
-      }
-      await prefs.setString('songs_cache', jsonString);
+  Future<void> _loadData() async {
+    final appState = context.read<AppState>();
+    await appState.init();
+
+    // Load songs from asset if not already loaded
+    if (appState.songs.isEmpty) {
+      await appState.loadSongsFromAsset('assets/json/swahili.json');
     }
-  }
 
-  Future<void> _updateSongsCache(SharedPreferences prefs) async {
-    try {
-      final String jsonString = await rootBundle.loadString(
-        'assets/json/swahili.json',
-      );
-      await prefs.setString('songs_cache', jsonString);
-    } catch (_) {}
-  }
-
-  void _onSearchChanged(String query) {
-    final lowerQuery = query.trim().toLowerCase();
-    if (songs.isEmpty) return;
-    if (lowerQuery.isEmpty) {
+    if (mounted) {
       setState(() {
-        filteredSongs = List.from(songs);
-      });
-    } else {
-      setState(() {
-        filteredSongs = songs.where((song) {
-          final title = (song['title'] ?? '').toString().toLowerCase();
-          final number = song['number'].toString();
-          return title.contains(lowerQuery) || number.contains(lowerQuery);
-        }).toList();
+        filteredSongs = appState.songs;
+        isLoading = false;
       });
     }
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      final query = _searchController.text.trim().toLowerCase();
+      final appState = context.read<AppState>();
+
+      if (query.isEmpty) {
+        setState(() {
+          filteredSongs = List.from(appState.songs);
+        });
+      } else {
+        setState(() {
+          filteredSongs = appState.songs.where((song) {
+            final title = (song['title'] ?? '').toString().toLowerCase();
+            final number = song['number'].toString();
+            return title.contains(query) || number.contains(query);
+          }).toList();
+        });
+      }
+    });
   }
 
   @override
@@ -100,7 +89,7 @@ class _HomePageState extends State<HomePage>
     return Scaffold(
       extendBody: true,
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildSkeletonLoader(theme, colorScheme)
           : Stack(
               children: [
                 CustomScrollView(
@@ -172,20 +161,28 @@ class _HomePageState extends State<HomePage>
                                   builder: (_) => const SettingsPage(),
                                 ),
                               );
-                              // Always reload to reflect any setting changes (like Song of the Day toggle)
-                              loadSongs();
+                              // Reload data after settings change
+                              _loadData();
                             },
                           ),
                         ),
                       ],
                     ),
-                    if (showPickOfTheDay)
-                      SliverToBoxAdapter(
-                        child: PickOfTheDay(
-                          songs: songs,
-                          onTap: _navigateToSong,
-                        ),
-                      ),
+                    Consumer<AppState>(
+                      builder: (context, appState, child) {
+                        if (!appState.showSongOfTheDay) {
+                          return const SliverToBoxAdapter(
+                            child: SizedBox.shrink(),
+                          );
+                        }
+                        return SliverToBoxAdapter(
+                          child: PickOfTheDay(
+                            songs: appState.songs,
+                            onTap: _navigateToSong,
+                          ),
+                        );
+                      },
+                    ),
                     SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
                         final song = filteredSongs[index];
@@ -314,7 +311,6 @@ class _HomePageState extends State<HomePage>
                   color: theme.colorScheme.onSurface,
                 ),
                 cursorColor: colorScheme.primary,
-                onChanged: _onSearchChanged,
                 decoration: InputDecoration(
                   hintText: 'Search number or title...',
                   hintStyle: theme.textTheme.bodyMedium?.copyWith(
@@ -339,7 +335,6 @@ class _HomePageState extends State<HomePage>
               onPressed: () {
                 HapticFeedback.mediumImpact();
                 _searchController.clear();
-                _onSearchChanged('');
                 setState(() {
                   isSearching = false;
                 });

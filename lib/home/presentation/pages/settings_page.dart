@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import '../../../state/app_state.dart';
 import 'favourites_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -13,28 +14,15 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _showWimboWaSiku = true;
-
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
-  }
-
-  Future<void> _loadPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _showWimboWaSiku = prefs.getBool('show_wimbo_wa_siku') ?? true;
-    });
   }
 
   Future<void> _toggleWimboWaSiku(bool value) async {
     HapticFeedback.lightImpact();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('show_wimbo_wa_siku', value);
-    setState(() {
-      _showWimboWaSiku = value;
-    });
+    final appState = context.read<AppState>();
+    await appState.setShowSongOfTheDay(value);
   }
 
   @override
@@ -80,24 +68,30 @@ class _SettingsPageState extends State<SettingsPage> {
                   _buildSettingsCard(
                     context,
                     children: [
-                      SwitchListTile(
-                        value: _showWimboWaSiku,
-                        onChanged: _toggleWimboWaSiku,
-                        activeThumbColor: colorScheme.primary,
-                        title: Text(
-                          'Wimbo wa Siku',
-                          style: textTheme.bodyLarge,
-                        ),
-                        subtitle: Text(
-                          'Onyesha wimbo wa siku ukiwa nyumbani',
-                          style: textTheme.bodySmall?.copyWith(
-                            color: colorScheme.onSurface.withValues(alpha: 0.5),
-                          ),
-                        ),
-                        secondary: Icon(
-                          CupertinoIcons.sparkles,
-                          color: colorScheme.primary,
-                        ),
+                      Consumer<AppState>(
+                        builder: (context, appState, child) {
+                          return SwitchListTile(
+                            value: appState.showSongOfTheDay,
+                            onChanged: _toggleWimboWaSiku,
+                            activeThumbColor: colorScheme.primary,
+                            title: Text(
+                              'Wimbo wa Siku',
+                              style: textTheme.bodyLarge,
+                            ),
+                            subtitle: Text(
+                              'Onyesha wimbo wa siku ukiwa nyumbani',
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                            ),
+                            secondary: Icon(
+                              CupertinoIcons.sparkles,
+                              color: colorScheme.primary,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nzk/theme/apptheme.dart';
 import 'home/presentation/pages/homepage.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'state/app_state.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,10 +27,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: HomePage(),
+    return ChangeNotifierProvider(
+      create: (_) => AppState(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        home: const HomePage(),
+      ),
     );
   }
 }
