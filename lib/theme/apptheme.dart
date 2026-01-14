@@ -27,7 +27,7 @@ class AppTheme {
         backgroundColor: backgroundColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: headerColor),
-        titleTextStyle: GoogleFonts.montserrat(
+        titleTextStyle: GoogleFonts.playfair(
           color: headerColor,
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -36,12 +36,12 @@ class AppTheme {
       iconTheme: const IconThemeData(color: headerColor),
       // Consistent Premium Typography
       textTheme: TextTheme(
-        displayLarge: GoogleFonts.montserrat(color: headerColor),
-        displayMedium: GoogleFonts.montserrat(color: headerColor),
-        displaySmall: GoogleFonts.montserrat(color: headerColor),
-        headlineMedium: GoogleFonts.montserrat(color: headerColor),
-        headlineSmall: GoogleFonts.montserrat(color: headerColor),
-        titleLarge: GoogleFonts.montserrat(
+        displayLarge: GoogleFonts.playfair(color: headerColor),
+        displayMedium: GoogleFonts.playfair(color: headerColor),
+        displaySmall: GoogleFonts.playfair(color: headerColor),
+        headlineMedium: GoogleFonts.playfair(color: headerColor),
+        headlineSmall: GoogleFonts.playfair(color: headerColor),
+        titleLarge: GoogleFonts.playfair(
           color: headerColor,
           fontWeight: FontWeight.w600,
         ),
