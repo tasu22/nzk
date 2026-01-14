@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage>
                             ),
                           ),
                           Text(
-                            'Msabato',
+                            'Mkristo',
                             style: textTheme.headlineMedium?.copyWith(
                               color: colorScheme.primary,
                               fontWeight: FontWeight.bold,
