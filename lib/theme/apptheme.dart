@@ -45,10 +45,20 @@ class AppTheme {
           color: headerColor,
           fontWeight: FontWeight.w600,
         ),
+        titleMedium: GoogleFonts.playfair(
+          color: headerColor,
+          fontWeight: FontWeight.w600,
+        ),
+        titleSmall: GoogleFonts.playfair(
+          color: headerColor,
+          fontWeight: FontWeight.w600,
+        ),
         bodyLarge: GoogleFonts.lexend(color: textColor),
         bodyMedium: GoogleFonts.lexend(color: textColor),
         bodySmall: GoogleFonts.lexend(color: textColor.withValues(alpha: 0.7)),
         labelLarge: GoogleFonts.lexend(color: textColor),
+        labelMedium: GoogleFonts.lexend(color: textColor),
+        labelSmall: GoogleFonts.lexend(color: textColor),
       ),
       inputDecorationTheme: InputDecorationTheme(
         enabledBorder: const UnderlineInputBorder(
