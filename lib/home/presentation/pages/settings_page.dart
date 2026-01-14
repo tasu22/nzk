@@ -230,15 +230,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Text(
-                  'KUHUSU APP',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 16),
+
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -260,7 +252,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Tumeitengeneza app hii kwa ajili ya kumtukuza Mungu bila matangazo wala malipo. Tunachohitaji ni upendo wako na kutufuatilia kwenye mitandao yetu ya kijamii.',
+                        'Tumeitengeneza app hii kwa ajili ya kumtukuza Mungu bila matangazo wala malipo. Tunachohitaji ni kila mtu kuuona upendo wa mungu. Tufuatilie kwenye mitandao yetu ya kijamii.',
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colorScheme.onSurface.withValues(alpha: 0.7),
