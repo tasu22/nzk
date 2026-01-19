@@ -199,24 +199,67 @@ class _HomePageState extends State<HomePage>
                         );
                       },
                     ),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final song = filteredSongs[index];
-                        final String rawTitle = song['title'] ?? '';
-                        final String displayTitle = rawTitle.replaceFirst(
-                          RegExp(r'^\d{1,4}\s*-\s*'),
-                          '',
-                        );
-                        return SongCard(
-                          number: song['number'],
-                          title: displayTitle,
-                          onTap: () {
-                            HapticFeedback.mediumImpact();
-                            _navigateToSong(song);
-                          },
-                        );
-                      }, childCount: filteredSongs.length),
-                    ),
+                    if (filteredSongs.isEmpty &&
+                        _searchController.text.isNotEmpty)
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                CupertinoIcons.doc_text_search,
+                                size: 64,
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Hakuna Matokeo',
+                                style: textTheme.titleMedium?.copyWith(
+                                  color: colorScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                ),
+                                child: Text(
+                                  'Tafadhali hakikisha umeweka namba au jina sahihi la wimbo.',
+                                  textAlign: TextAlign.center,
+                                  style: textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurface.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          final song = filteredSongs[index];
+                          final String rawTitle = song['title'] ?? '';
+                          final String displayTitle = rawTitle.replaceFirst(
+                            RegExp(r'^\d{1,4}\s*-\s*'),
+                            '',
+                          );
+                          return SongCard(
+                            number: song['number'],
+                            title: displayTitle,
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              _navigateToSong(song);
+                            },
+                          );
+                        }, childCount: filteredSongs.length),
+                      ),
                     const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
                   ],
                 ),
