@@ -12,7 +12,8 @@ import '../components/pick_of_the_day.dart';
 import 'settings_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String? initialSearchQuery;
+  const HomePage({super.key, this.initialSearchQuery});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -29,8 +30,14 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-    _loadData();
     _searchController.addListener(_onSearchChanged);
+
+    if (widget.initialSearchQuery != null) {
+      _searchController.text = widget.initialSearchQuery!;
+      isSearching = true;
+    }
+
+    _loadData();
   }
 
   @override
@@ -51,7 +58,16 @@ class _HomePageState extends State<HomePage>
 
     if (mounted) {
       setState(() {
-        filteredSongs = appState.songs;
+        if (isSearching && _searchController.text.isNotEmpty) {
+          final query = _searchController.text.trim().toLowerCase();
+          filteredSongs = appState.songs.where((song) {
+            final title = (song['title'] ?? '').toString().toLowerCase();
+            final number = song['number'].toString();
+            return title.contains(query) || number.contains(query);
+          }).toList();
+        } else {
+          filteredSongs = appState.songs;
+        }
         isLoading = false;
       });
     }
