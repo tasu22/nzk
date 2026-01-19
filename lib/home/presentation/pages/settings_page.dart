@@ -292,7 +292,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       const url =
-                          'https://www.tiktok.com/@smartalleni?_t=ZS-8xaNtb7BLnU&_r=1';
+                          'https://www.tiktok.com/@spadestechnologies?is_from_webapp=1&sender_device=pc';
                       final uri = Uri.parse(url);
                       if (await canLaunchUrl(uri)) {
                         await launchUrl(
