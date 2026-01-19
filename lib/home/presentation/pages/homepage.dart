@@ -172,12 +172,12 @@ class _HomePageState extends State<HomePage>
                       builder: (context, appState, child) {
                         if (!appState.showSongOfTheDay) {
                           return const SliverToBoxAdapter(
-                            child: SizedBox.shrink(),
+                            child: SizedBox(height: 16),
                           );
                         }
                         return SliverToBoxAdapter(
                           child: PickOfTheDay(
-                            songs: appState.songs,
+                            song: appState.dailyPick,
                             onTap: _navigateToSong,
                           ),
                         );

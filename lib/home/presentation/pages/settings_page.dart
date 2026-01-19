@@ -93,6 +93,38 @@ class _SettingsPageState extends State<SettingsPage> {
                           );
                         },
                       ),
+                      _buildDivider(theme),
+                      Consumer<AppState>(
+                        builder: (context, appState, child) {
+                          final isLight = appState.themeMode == ThemeMode.light;
+                          return SwitchListTile(
+                            value: isLight,
+                            onChanged: (val) {
+                              HapticFeedback.lightImpact();
+                              appState.setThemeMode(
+                                val ? ThemeMode.light : ThemeMode.dark,
+                              );
+                            },
+                            activeThumbColor: colorScheme.primary,
+                            title: Text(
+                              'Light Mode',
+                              style: textTheme.bodyLarge,
+                            ),
+                            subtitle: Text(
+                              'Washa muonekano mweupe',
+                              style: textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                            ),
+                            secondary: Icon(
+                              CupertinoIcons.sun_max,
+                              color: colorScheme.primary,
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -118,7 +150,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       _buildListTile(
                         context,
                         icon: CupertinoIcons.info,
-                        title: 'Kuhusu App',
+                        title: 'Kuhusu',
                         onTap: () {
                           HapticFeedback.mediumImpact();
                           _showAboutDialog(context);
@@ -157,15 +189,9 @@ class _SettingsPageState extends State<SettingsPage> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.05),
-        ),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(children: children),
     );
@@ -191,7 +217,7 @@ class _SettingsPageState extends State<SettingsPage> {
       thickness: 1,
       indent: 16,
       endIndent: 16,
-      color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+      color: theme.colorScheme.outlineVariant,
     );
   }
 
@@ -234,11 +260,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: colorScheme.surface.withValues(alpha: 0.5),
+                    color: colorScheme.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: colorScheme.onSurface.withValues(alpha: 0.1),
-                    ),
+                    border: Border.all(color: colorScheme.outlineVariant),
                   ),
                   child: Column(
                     children: [

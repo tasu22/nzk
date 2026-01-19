@@ -1,31 +1,20 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 class PickOfTheDay extends StatelessWidget {
-  final List<dynamic> songs;
+  final Map<String, dynamic>? song;
   final void Function(dynamic song)? onTap;
 
-  const PickOfTheDay({super.key, required this.songs, this.onTap});
+  const PickOfTheDay({super.key, required this.song, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    if (songs.isEmpty) {
+    if (song == null) {
       return const SizedBox.shrink();
     }
-    // Use the day of year as a seed for deterministic randomness
-    final now = DateTime.now();
-    final dayOfYear = int.parse(
-      DateTime(
-        now.year,
-        now.month,
-        now.day,
-      ).difference(DateTime(now.year, 1, 1)).inDays.toString(),
-    );
-    final random = Random(dayOfYear);
-    final song = songs[random.nextInt(songs.length)];
-    final String rawTitle = song['title'] ?? '';
+
+    final String rawTitle = song!['title'] ?? '';
     final String displayTitle = rawTitle.replaceFirst(
       RegExp(r'^\d+\s*-\s*'),
       '',
@@ -48,17 +37,17 @@ class PickOfTheDay extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.white.withValues(alpha: 0.08),
-              Colors.white.withValues(alpha: 0.02),
+              colorScheme.surfaceContainer,
+              colorScheme.surfaceContainerLow,
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: colorScheme.outline),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: colorScheme.shadow,
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -97,7 +86,7 @@ class PickOfTheDay extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    song['number'].toString(),
+                    song!['number'].toString(),
                     style: textTheme.displaySmall?.copyWith(
                       color: colorScheme.primary,
                       fontWeight: FontWeight.bold,

@@ -29,10 +29,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => AppState(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        home: const HomePage(),
+      child: Consumer<AppState>(
+        builder: (context, state, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Nyimbo za Kristo',
+            themeMode: state.themeMode,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            home: const HomePage(),
+          );
+        },
       ),
     );
   }
