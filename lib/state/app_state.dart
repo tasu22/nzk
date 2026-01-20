@@ -29,6 +29,19 @@ class AppState extends ChangeNotifier {
   bool get showSongOfTheDay => _showSongOfTheDay;
 
   // -----------------------------------------------------------------
+  // Onboarding
+  // -----------------------------------------------------------------
+  bool _hasSeenOnboarding = false;
+  bool get hasSeenOnboarding => _hasSeenOnboarding;
+
+  Future<void> completeOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    _hasSeenOnboarding = true;
+    await prefs.setBool('has_seen_onboarding', true);
+    notifyListeners();
+  }
+
+  // -----------------------------------------------------------------
   // Theme Mode
   // -----------------------------------------------------------------
   ThemeMode _themeMode = ThemeMode.dark;
@@ -65,6 +78,7 @@ class AppState extends ChangeNotifier {
   // Initialisation
   // -----------------------------------------------------------------
   bool _initialized = false;
+  bool get isInitialized => _initialized;
   Future<void> _ensureInitialized() async {
     if (_initialized) return;
     final prefs = await SharedPreferences.getInstance();
@@ -87,6 +101,9 @@ class AppState extends ChangeNotifier {
     _favourites.addAll(favList);
     // Load the "Song of the Day" flag
     _showSongOfTheDay = prefs.getBool('show_wimbo_wa_siku') ?? true;
+
+    // Load Onboarding State
+    _hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
 
     // Load Theme Mode
     final themeIndex = prefs.getInt('theme_mode');
