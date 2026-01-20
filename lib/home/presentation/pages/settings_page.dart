@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
+import '../../../theme/apptheme.dart';
 import '../../../state/app_state.dart';
 import 'favourites_page.dart';
 
@@ -224,6 +225,8 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showAboutDialog(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final appLogo = theme.extension<AppLogo>();
+    final logoPath = appLogo?.logoPath ?? AppTheme.logoLight;
 
     showModalBottomSheet(
       context: context,
@@ -249,9 +252,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     shape: BoxShape.circle,
                     border: Border.all(color: colorScheme.primary, width: 2),
                   ),
-                  child: const CircleAvatar(
+                  child: CircleAvatar(
                     radius: 40,
-                    backgroundImage: AssetImage('assets/images/nzk.png'),
+                    backgroundImage: AssetImage(logoPath),
                     backgroundColor: Colors.transparent,
                   ),
                 ),

@@ -1,6 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// -----------------------------------------------------------------
+// App Logo Extension
+// -----------------------------------------------------------------
+class AppLogo extends ThemeExtension<AppLogo> {
+  final String logoPath;
+
+  const AppLogo({required this.logoPath});
+
+  @override
+  AppLogo copyWith({String? logoPath}) {
+    return AppLogo(logoPath: logoPath ?? this.logoPath);
+  }
+
+  @override
+  AppLogo lerp(ThemeExtension<AppLogo>? other, double t) {
+    if (other is! AppLogo) {
+      return this;
+    }
+    // No meaningful interpolation for strings/path, so we just swap at 50%
+    return t < 0.5 ? this : other;
+  }
+}
+
 class AppTheme {
   // Premium Dark Palette
   static const Color darkBackgroundColor = Color(
@@ -17,11 +40,14 @@ class AppTheme {
 
   // Shared
   static const Color primaryGold = Color(0xFFD4AF37); // Muted Gold
+  static const String logoLight = 'assets/images/iconlight.png';
+  static const String logoDark = 'assets/images/icondark.png';
 
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      extensions: const [AppLogo(logoPath: logoLight)],
       scaffoldBackgroundColor: lightBackgroundColor,
       primaryColor: lightBackgroundColor,
       colorScheme: const ColorScheme.light(
@@ -114,6 +140,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      extensions: const [AppLogo(logoPath: logoDark)],
       scaffoldBackgroundColor: darkBackgroundColor,
       primaryColor: darkBackgroundColor,
       colorScheme: const ColorScheme.dark(
