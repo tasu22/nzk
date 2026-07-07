@@ -31,6 +31,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
+    final orientation = MediaQuery.of(context).orientation;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -51,7 +52,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 ), // Return true to signal refresh
               ),
               flexibleSpace: FlexibleSpaceBar(
-                titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+                titlePadding: orientation == Orientation.landscape
+                    ? const EdgeInsets.only(left: 72, bottom: 16, right: 16)
+                    : const EdgeInsets.only(left: 16, bottom: 16, right: 16),
                 title: Text(
                   'Mipangilio',
                   style: textTheme.headlineMedium?.copyWith(

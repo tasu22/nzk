@@ -38,6 +38,7 @@ class FavouritesPageState extends State<FavouritesPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
+    final orientation = MediaQuery.of(context).orientation;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -94,28 +95,33 @@ class FavouritesPageState extends State<FavouritesPage> {
                         ),
                         onPressed: () => Navigator.pop(context),
                       ),
-                      title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Nyimbo',
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurface.withValues(
-                                alpha: 0.7,
+                      title: Padding(
+                        padding: EdgeInsets.only(
+                          left: orientation == Orientation.landscape ? 16.0 : 0.0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Nyimbo',
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
+                                letterSpacing: 0.5,
                               ),
-                              letterSpacing: 0.5,
                             ),
-                          ),
-                          Text(
-                            'Pendwa',
-                            style: textTheme.headlineMedium?.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                              height: 1.1,
+                            Text(
+                              'Pendwa',
+                              style: textTheme.headlineMedium?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                height: 1.1,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       centerTitle: false,
                     ),
