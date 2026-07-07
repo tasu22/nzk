@@ -104,173 +104,179 @@ class _HomePageState extends State<HomePage>
 
     return Scaffold(
       extendBody: true,
-      body: isLoading
-          ? _buildSkeletonLoader(theme, colorScheme)
-          : Stack(
-              children: [
-                CustomScrollView(
-                  slivers: [
-                    // ... SliverAppBar ...
-                    SliverAppBar(
-                      floating: true,
-                      snap: true,
-                      backgroundColor: theme.scaffoldBackgroundColor.withValues(
-                        alpha: 0.9,
-                      ),
-                      surfaceTintColor: Colors.transparent,
-                      elevation: 0,
-                      automaticallyImplyLeading: false,
-                      title: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Mpendwa',
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurface.withValues(
-                                alpha: 0.7,
+      body: SafeArea(
+        child: isLoading
+            ? _buildSkeletonLoader(theme, colorScheme)
+            : Stack(
+                children: [
+                  CustomScrollView(
+                    slivers: [
+                      // ... SliverAppBar ...
+                      SliverAppBar(
+                        floating: true,
+                        snap: true,
+                        backgroundColor: theme.scaffoldBackgroundColor
+                            .withValues(alpha: 0.9),
+                        surfaceTintColor: Colors.transparent,
+                        elevation: 0,
+                        automaticallyImplyLeading: false,
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Mpendwa',
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
+                                letterSpacing: 0.5,
                               ),
-                              letterSpacing: 0.5,
                             ),
-                          ),
-                          Text(
-                            'Mkristo',
-                            style: textTheme.headlineMedium?.copyWith(
+                            Text(
+                              'Mkristo',
+                              style: textTheme.headlineMedium?.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                height: 1.1,
+                              ),
+                            ),
+                          ],
+                        ),
+                        centerTitle: false,
+                        actions: [
+                          IconButton(
+                            icon: Icon(
+                              CupertinoIcons.heart,
                               color: colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                              height: 1.1,
+                            ),
+                            tooltip: 'Favourites',
+                            onPressed: () {
+                              HapticFeedback.mediumImpact();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const FavouritesPage(),
+                                ),
+                              );
+                            },
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: IconButton(
+                              icon: Icon(
+                                CupertinoIcons.settings,
+                                color: colorScheme.primary,
+                              ),
+                              tooltip: 'Settings',
+                              onPressed: () async {
+                                HapticFeedback.mediumImpact();
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const SettingsPage(),
+                                  ),
+                                );
+                                // Reload data after settings change
+                                _loadData();
+                              },
                             ),
                           ),
                         ],
                       ),
-                      centerTitle: false,
-                      actions: [
-                        IconButton(
-                          icon: Icon(
-                            CupertinoIcons.heart,
-                            color: colorScheme.primary,
-                          ),
-                          tooltip: 'Favourites',
-                          onPressed: () {
-                            HapticFeedback.mediumImpact();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const FavouritesPage(),
-                              ),
+                      Consumer<AppState>(
+                        builder: (context, appState, child) {
+                          if (!appState.showSongOfTheDay) {
+                            return const SliverToBoxAdapter(
+                              child: SizedBox(height: 16),
                             );
-                          },
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: IconButton(
-                            icon: Icon(
-                              CupertinoIcons.settings,
-                              color: colorScheme.primary,
+                          }
+                          return SliverToBoxAdapter(
+                            child: PickOfTheDay(
+                              song: appState.dailyPick,
+                              onTap: _navigateToSong,
                             ),
-                            tooltip: 'Settings',
-                            onPressed: () async {
-                              HapticFeedback.mediumImpact();
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const SettingsPage(),
-                                ),
-                              );
-                              // Reload data after settings change
-                              _loadData();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    Consumer<AppState>(
-                      builder: (context, appState, child) {
-                        if (!appState.showSongOfTheDay) {
-                          return const SliverToBoxAdapter(
-                            child: SizedBox(height: 16),
                           );
-                        }
-                        return SliverToBoxAdapter(
-                          child: PickOfTheDay(
-                            song: appState.dailyPick,
-                            onTap: _navigateToSong,
-                          ),
-                        );
-                      },
-                    ),
-                    if (filteredSongs.isEmpty &&
-                        _searchController.text.isNotEmpty)
-                      SliverFillRemaining(
-                        hasScrollBody: false,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                CupertinoIcons.doc_text_search,
-                                size: 64,
-                                color: colorScheme.primary.withValues(
-                                  alpha: 0.5,
+                        },
+                      ),
+                      if (filteredSongs.isEmpty &&
+                          _searchController.text.isNotEmpty)
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  CupertinoIcons.doc_text_search,
+                                  size: 64,
+                                  color: colorScheme.primary.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'Hakuna Matokeo',
-                                style: textTheme.titleMedium?.copyWith(
-                                  color: colorScheme.onSurface,
-                                  fontWeight: FontWeight.bold,
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Hakuna Matokeo',
+                                  style: textTheme.titleMedium?.copyWith(
+                                    color: colorScheme.onSurface,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 40,
-                                ),
-                                child: Text(
-                                  'Tafadhali hakikisha umeweka namba au jina sahihi la wimbo.',
-                                  textAlign: TextAlign.center,
-                                  style: textTheme.bodyMedium?.copyWith(
-                                    color: colorScheme.onSurface.withValues(
-                                      alpha: 0.5,
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 40,
+                                  ),
+                                  child: Text(
+                                    'Tafadhali hakikisha umeweka namba au jina sahihi la wimbo.',
+                                    textAlign: TextAlign.center,
+                                    style: textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onSurface.withValues(
+                                        alpha: 0.5,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                        )
+                      else
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final song = filteredSongs[index];
+                            final String rawTitle = song['title'] ?? '';
+                            final String displayTitle = rawTitle.replaceFirst(
+                              RegExp(r'^\d{1,4}\s*-\s*'),
+                              '',
+                            );
+                            return SongCard(
+                              number: song['number'],
+                              title: displayTitle,
+                              onTap: () {
+                                HapticFeedback.mediumImpact();
+                                _navigateToSong(song);
+                              },
+                            );
+                          }, childCount: filteredSongs.length),
                         ),
-                      )
-                    else
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          final song = filteredSongs[index];
-                          final String rawTitle = song['title'] ?? '';
-                          final String displayTitle = rawTitle.replaceFirst(
-                            RegExp(r'^\d{1,4}\s*-\s*'),
-                            '',
-                          );
-                          return SongCard(
-                            number: song['number'],
-                            title: displayTitle,
-                            onTap: () {
-                              HapticFeedback.mediumImpact();
-                              _navigateToSong(song);
-                            },
-                          );
-                        }, childCount: filteredSongs.length),
+                      const SliverPadding(
+                        padding: EdgeInsets.only(bottom: 100),
                       ),
-                    const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
-                  ],
-                ),
-                Positioned(
-                  bottom: 32,
-                  left: 24,
-                  right: 24,
-                  child: _buildFloatingSearchBar(context),
-                ),
-              ],
-            ),
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 32,
+                    left: 24,
+                    right: 24,
+                    child: SafeArea(child: _buildFloatingSearchBar(context)),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 

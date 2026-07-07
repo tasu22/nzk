@@ -70,7 +70,9 @@ class _AppLandingState extends State<AppLanding> {
         if (!state.isInitialized) {
           return Scaffold(
             backgroundColor: theme.scaffoldBackgroundColor,
-            body: const Center(child: CircularProgressIndicator()),
+            body: SafeArea(
+              child: const Center(child: CircularProgressIndicator()),
+            ),
           );
         }
         return state.hasSeenOnboarding

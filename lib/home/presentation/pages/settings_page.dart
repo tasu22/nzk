@@ -34,136 +34,141 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 120.0,
-            floating: true,
-            pinned: true,
-            backgroundColor: theme.scaffoldBackgroundColor,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: colorScheme.primary),
-              onPressed: () =>
-                  Navigator.pop(context, true), // Return true to signal refresh
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 120.0,
+              floating: true,
+              pinned: true,
+              backgroundColor: theme.scaffoldBackgroundColor,
+              elevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: colorScheme.primary),
+                onPressed: () => Navigator.pop(
+                  context,
+                  true,
+                ), // Return true to signal refresh
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
+                title: Text(
+                  'Mipangilio',
+                  style: textTheme.headlineMedium?.copyWith(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                centerTitle: false,
+              ),
             ),
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              title: Text(
-                'Mipangilio',
-                style: textTheme.headlineMedium?.copyWith(
-                  color: colorScheme.primary,
-                  fontWeight: FontWeight.bold,
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader(context, 'Muonekano'),
+                    _buildSettingsCard(
+                      context,
+                      children: [
+                        Consumer<AppState>(
+                          builder: (context, appState, child) {
+                            return SwitchListTile(
+                              value: appState.showSongOfTheDay,
+                              onChanged: _toggleWimboWaSiku,
+                              activeThumbColor: colorScheme.primary,
+                              title: Text(
+                                'Wimbo wa Siku',
+                                style: textTheme.bodyLarge,
+                              ),
+                              subtitle: Text(
+                                'Onyesha wimbo wa siku ukiwa nyumbani',
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ),
+                              ),
+                              secondary: Icon(
+                                CupertinoIcons.sparkles,
+                                color: colorScheme.primary,
+                              ),
+                            );
+                          },
+                        ),
+                        _buildDivider(theme),
+                        Consumer<AppState>(
+                          builder: (context, appState, child) {
+                            final isLight =
+                                appState.themeMode == ThemeMode.light;
+                            return SwitchListTile(
+                              value: isLight,
+                              onChanged: (val) {
+                                HapticFeedback.lightImpact();
+                                appState.setThemeMode(
+                                  val ? ThemeMode.light : ThemeMode.dark,
+                                );
+                              },
+                              activeThumbColor: colorScheme.primary,
+                              title: Text(
+                                'Light Mode',
+                                style: textTheme.bodyLarge,
+                              ),
+                              subtitle: Text(
+                                'Washa muonekano mweupe',
+                                style: textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurface.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ),
+                              ),
+                              secondary: Icon(
+                                CupertinoIcons.sun_max,
+                                color: colorScheme.primary,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    _buildSectionHeader(context, 'Jumla'),
+                    _buildSettingsCard(
+                      context,
+                      children: [
+                        _buildListTile(
+                          context,
+                          icon: CupertinoIcons.heart,
+                          title: 'Vipendwa',
+                          onTap: () {
+                            HapticFeedback.mediumImpact();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const FavouritesPage(),
+                              ),
+                            );
+                          },
+                        ),
+                        _buildDivider(theme),
+                        _buildListTile(
+                          context,
+                          icon: CupertinoIcons.info,
+                          title: 'Kuhusu',
+                          onTap: () {
+                            HapticFeedback.mediumImpact();
+                            _showAboutDialog(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              centerTitle: false,
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionHeader(context, 'Muonekano'),
-                  _buildSettingsCard(
-                    context,
-                    children: [
-                      Consumer<AppState>(
-                        builder: (context, appState, child) {
-                          return SwitchListTile(
-                            value: appState.showSongOfTheDay,
-                            onChanged: _toggleWimboWaSiku,
-                            activeThumbColor: colorScheme.primary,
-                            title: Text(
-                              'Wimbo wa Siku',
-                              style: textTheme.bodyLarge,
-                            ),
-                            subtitle: Text(
-                              'Onyesha wimbo wa siku ukiwa nyumbani',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withValues(
-                                  alpha: 0.5,
-                                ),
-                              ),
-                            ),
-                            secondary: Icon(
-                              CupertinoIcons.sparkles,
-                              color: colorScheme.primary,
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDivider(theme),
-                      Consumer<AppState>(
-                        builder: (context, appState, child) {
-                          final isLight = appState.themeMode == ThemeMode.light;
-                          return SwitchListTile(
-                            value: isLight,
-                            onChanged: (val) {
-                              HapticFeedback.lightImpact();
-                              appState.setThemeMode(
-                                val ? ThemeMode.light : ThemeMode.dark,
-                              );
-                            },
-                            activeThumbColor: colorScheme.primary,
-                            title: Text(
-                              'Light Mode',
-                              style: textTheme.bodyLarge,
-                            ),
-                            subtitle: Text(
-                              'Washa muonekano mweupe',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurface.withValues(
-                                  alpha: 0.5,
-                                ),
-                              ),
-                            ),
-                            secondary: Icon(
-                              CupertinoIcons.sun_max,
-                              color: colorScheme.primary,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  _buildSectionHeader(context, 'Jumla'),
-                  _buildSettingsCard(
-                    context,
-                    children: [
-                      _buildListTile(
-                        context,
-                        icon: CupertinoIcons.heart,
-                        title: 'Vipendwa',
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const FavouritesPage(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildDivider(theme),
-                      _buildListTile(
-                        context,
-                        icon: CupertinoIcons.info,
-                        title: 'Kuhusu',
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          _showAboutDialog(context);
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

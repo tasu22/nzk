@@ -19,7 +19,11 @@ class _SongDetailPageState extends State<SongDetailPage> {
     super.initState();
   }
 
-  List<Widget> _parseContent(String content, BuildContext context) {
+  List<Widget> _parseContent(
+    String content,
+    BuildContext context,
+    Orientation orientation,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
@@ -43,63 +47,33 @@ class _SongDetailPageState extends State<SongDetailPage> {
       String stanza = text.substring(last);
       blocks.add({'type': 'stanza', 'text': stanza});
     }
+
     List<Widget> widgets = [];
-    for (final block in blocks) {
-      String blockText = block['text'] ?? '';
-      blockText = blockText.replaceAll(RegExp(r'<font[^>]*>'), '');
-      blockText = blockText.replaceAll('</font>', '');
-      blockText = blockText.replaceAll(RegExp(r'<[^>]*>'), '');
-      final paragraphs = blockText.split(RegExp(r'\n{2,}'));
-      for (var para in paragraphs) {
-        String trimmed = para.trim();
-        trimmed = trimmed.replaceFirst(RegExp(r'^(\d+)(\s*[-.–]?\s*)'), '');
-        if (trimmed.isEmpty) continue;
+
+    if (orientation == Orientation.landscape) {
+      // In landscape: group into rows of (stanza, chorus) pairs if possible
+      for (int i = 0; i < blocks.length; i++) {
+        final block = blocks[i];
+        String blockText = block['text'] ?? '';
+        blockText = blockText.replaceAll(RegExp(r'<font[^>]*>'), '');
+        blockText = blockText.replaceAll('</font>', '');
+        blockText = blockText.replaceAll(RegExp(r'<[^>]*>'), '');
+        final paragraphs = blockText.split(RegExp(r'\n{2,}'));
+
         if (block['type'] == 'chorus') {
-          trimmed = trimmed.replaceFirst(
-            RegExp(r'^CHORUS:?\s*', caseSensitive: false),
-            '',
-          );
-          widgets.add(
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 16),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: colorScheme.primary.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'KIITIKIO',
-                    style: textTheme.labelSmall?.copyWith(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    trimmed,
-                    textAlign: TextAlign.center,
-                    style: textTheme.bodyLarge?.copyWith(
-                      fontSize: 18,
-                      fontStyle: FontStyle.italic,
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                      height: 1.6,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        } else {
-          widgets.add(
+          // Skip if already paired with previous stanza
+          continue;
+        }
+
+        // Process stanza
+        List<Widget> stanzaWidgets = [];
+        for (var para in paragraphs) {
+          String trimmed = para.trim();
+          trimmed = trimmed.replaceFirst(RegExp(r'^(\d+)(\s*[-.–]?\s*)'), '');
+          if (trimmed.isEmpty) continue;
+          stanzaWidgets.add(
             Padding(
-              padding: const EdgeInsets.only(bottom: 24),
+              padding: const EdgeInsets.only(bottom: 12),
               child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -128,8 +102,184 @@ class _SongDetailPageState extends State<SongDetailPage> {
             ),
           );
         }
+
+        // Check if next block is a chorus
+        Widget? chorusWidget;
+        if (i + 1 < blocks.length && blocks[i + 1]['type'] == 'chorus') {
+          final chorusBlock = blocks[i + 1];
+          String chorusText = chorusBlock['text'] ?? '';
+          chorusText = chorusText.replaceAll(RegExp(r'<font[^>]*>'), '');
+          chorusText = chorusText.replaceAll('</font>', '');
+          chorusText = chorusText.replaceAll(RegExp(r'<[^>]*>'), '');
+          final chorusParagraphs = chorusText.split(RegExp(r'\n{2,}'));
+
+          List<Widget> chorusChildren = [];
+          for (var para in chorusParagraphs) {
+            String trimmed = para.trim();
+            trimmed = trimmed.replaceFirst(
+              RegExp(r'^CHORUS:?\s*', caseSensitive: false),
+              '',
+            );
+            if (trimmed.isEmpty) continue;
+            chorusChildren.add(
+              Text(
+                trimmed,
+                textAlign: TextAlign.center,
+                style: textTheme.bodyLarge?.copyWith(
+                  fontSize: 18,
+                  fontStyle: FontStyle.italic,
+                  color: colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                  height: 1.6,
+                ),
+              ),
+            );
+          }
+
+          if (chorusChildren.isNotEmpty) {
+            chorusWidget = Container(
+              margin: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'KIITIKIO',
+                    style: textTheme.labelSmall?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...chorusChildren,
+                ],
+              ),
+            );
+          }
+        }
+
+        // Add row with stanza and optional chorus
+        if (stanzaWidgets.isNotEmpty || chorusWidget != null) {
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: stanzaWidgets,
+                    ),
+                  ),
+                  if (chorusWidget != null) ...[
+                    const SizedBox(width: 24),
+                    Expanded(child: chorusWidget),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }
+      }
+    } else {
+      // Portrait mode: original layout
+      for (final block in blocks) {
+        String blockText = block['text'] ?? '';
+        blockText = blockText.replaceAll(RegExp(r'<font[^>]*>'), '');
+        blockText = blockText.replaceAll('</font>', '');
+        blockText = blockText.replaceAll(RegExp(r'<[^>]*>'), '');
+        final paragraphs = blockText.split(RegExp(r'\n{2,}'));
+        for (var para in paragraphs) {
+          String trimmed = para.trim();
+          trimmed = trimmed.replaceFirst(RegExp(r'^(\d+)(\s*[-.–]?\s*)'), '');
+          if (trimmed.isEmpty) continue;
+          if (block['type'] == 'chorus') {
+            trimmed = trimmed.replaceFirst(
+              RegExp(r'^CHORUS:?\s*', caseSensitive: false),
+              '',
+            );
+            widgets.add(
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: colorScheme.primary.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'KIITIKIO',
+                      style: textTheme.labelSmall?.copyWith(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      trimmed,
+                      textAlign: TextAlign.center,
+                      style: textTheme.bodyLarge?.copyWith(
+                        fontSize: 18,
+                        fontStyle: FontStyle.italic,
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                        height: 1.6,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          } else {
+            widgets.add(
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        width: 4,
+                        margin: const EdgeInsets.only(right: 16),
+                        decoration: BoxDecoration(
+                          color: colorScheme.onSurface.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          trimmed,
+                          style: textTheme.bodyLarge?.copyWith(
+                            fontSize: 18,
+                            height: 1.8,
+                            color: colorScheme.onSurface.withValues(alpha: 0.9),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+        }
       }
     }
+
     return widgets;
   }
 
@@ -138,76 +288,81 @@ class _SongDetailPageState extends State<SongDetailPage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
+    final orientation = MediaQuery.of(context).orientation;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            floating: true,
-            expandedHeight: 120.0,
-            backgroundColor: theme.scaffoldBackgroundColor,
-            surfaceTintColor: Colors.transparent,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            actions: [
-              Consumer<AppState>(
-                builder: (context, appState, child) {
-                  final isFavourite = appState.favourites.contains(
-                    widget.title,
-                  );
-                  return IconButton(
-                    icon: Icon(
-                      isFavourite
-                          ? CupertinoIcons.heart_fill
-                          : CupertinoIcons.heart,
-                      color: isFavourite ? Colors.red : colorScheme.primary,
-                    ),
-                    tooltip: isFavourite
-                        ? 'Ondoa kwenye vipendwa'
-                        : 'Weka kwenye vipendwa',
-                    onPressed: () async {
-                      HapticFeedback.mediumImpact();
-                      await appState.toggleFavourite(widget.title);
-                    },
-                  );
-                },
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              floating: true,
+              expandedHeight: 120.0,
+              backgroundColor: theme.scaffoldBackgroundColor,
+              surfaceTintColor: Colors.transparent,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+                onPressed: () => Navigator.of(context).pop(),
               ),
-              const SizedBox(width: 8),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(
-                left: 60, // Increased to avoid back button overlap
-                bottom: 16,
-                right: 16,
-              ),
-              title: Text(
-                widget.title.toUpperCase(),
-                style: textTheme.titleMedium?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary,
-                  letterSpacing: -0.5,
+              actions: [
+                Consumer<AppState>(
+                  builder: (context, appState, child) {
+                    final isFavourite = appState.favourites.contains(
+                      widget.title,
+                    );
+                    return IconButton(
+                      icon: Icon(
+                        isFavourite
+                            ? CupertinoIcons.heart_fill
+                            : CupertinoIcons.heart,
+                        color: isFavourite ? Colors.red : colorScheme.primary,
+                      ),
+                      tooltip: isFavourite
+                          ? 'Ondoa kwenye vipendwa'
+                          : 'Weka kwenye vipendwa',
+                      onPressed: () async {
+                        HapticFeedback.mediumImpact();
+                        await appState.toggleFavourite(widget.title);
+                      },
+                    );
+                  },
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                const SizedBox(width: 8),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: orientation == Orientation.landscape
+                    ? const EdgeInsets.only(
+                        left: 72, // More space for landscape mode
+                        bottom: 16,
+                        right: 16,
+                      )
+                    : const EdgeInsets.only(left: 60, bottom: 16, right: 16),
+                title: Text(
+                  widget.title.toUpperCase(),
+                  style: textTheme.titleMedium?.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                centerTitle: false,
               ),
-              centerTitle: false,
             ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 48),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _parseContent(widget.content, context),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 48),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _parseContent(widget.content, context, orientation),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
